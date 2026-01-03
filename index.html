@@ -27,7 +27,17 @@ body.dark .card { background: var(--card-dark); }
 body.light { background: var(--bg-light); color: var(--text-light); }
 body.light .card { background: var(--card-light); }
 
-#content {flex:1; display:flex; justify-content:center; align-items:flex-start; padding:12px; overflow-y:auto; flex-direction:column; gap:16px;}
+#content {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* orizzontale */
+  align-items: flex-start; /* verticale: top per liste */
+  padding: 12px;
+  padding-bottom: 80px; /* <- aggiunto per non far finire la lista sotto le tab */
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 16px;
+}
 
 section {display:none; width:100%; max-width:1200px; margin:0 auto;}
 section.active {display:block;}
