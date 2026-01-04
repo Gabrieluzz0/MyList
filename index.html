@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MyList</title>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗒️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div id="content">
+
+<section id="lists" class="active">
+  <div id="listsTitleWrapper"><h1 id="listsTitle"><i class="fas fa-list"></i> Liste </h1></div>
+  <div id="noListsMessage">Non ci sono liste qui</div>
+  <div id="listsContainer"></div>
+</section>
+
+<section id="settings">
+  <div class="card">
+    <h2><i class="fa fa-cog"></i> Impostazioni</h2>
+    <div style="display:flex;align-items:center;"><span>Dark Mode</span>
+      <label class="switch"><input type="checkbox" id="darkToggle" checked><span class="slider"></span></label>
+    </div>
+    <hr style="border:none;height:1px;background:rgba(255,255,255,0.15);margin:16px 0;">
+    <button id="exportBtn">📤 Esporta liste</button>
+    <button id="importBtn">📥 Importa liste</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+  </div>
+</section>
+
+</div>
+
+<div id="tabs">
+  <div class="tab-item active" data-tab="lists"><i class="fas fa-list"></i></div>
+  <div class="tab-item" id="addListTab"><i class="fas fa-plus"></i></div>
+  <div class="tab-item" data-tab="settings"><i class="fas fa-cog"></i></div>
+</div>
+
+<footer>© Gabrieluzz0</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
