@@ -202,7 +202,13 @@ function createListCard(list, listIdx) {
 
 // ---------- RENDER OGGETTI ----------
 function renderItems(list, container, card) {
-  container.innerHTML = "";
+  // Svuota completamente il container della lista
+  const parentContainer = container.parentElement;
+  parentContainer.innerHTML = "";
+  
+  const newWrapper = document.createElement("div");
+  newWrapper.className = "items-wrapper";
+  parentContainer.appendChild(newWrapper);
 
   // PROGRESS BAR (fuori dallo scroll)
   const progressContainer = document.createElement("div");
@@ -212,7 +218,7 @@ function renderItems(list, container, card) {
   const progText = document.createElement("div");
   progText.className = "progress-text";
   progressContainer.append(prog, progText);
-  container.appendChild(progressContainer);
+  newWrapper.appendChild(progressContainer);
 
   // CONTENITORE SCROLLABILE
   const scrollContainer = document.createElement("div");
@@ -300,7 +306,7 @@ function renderItems(list, container, card) {
     const addItem = () => {
       list.items.push(obj);
       save();
-      renderItems(list, container, card);
+      renderItems(list, newWrapper, card);
       form.style.display = "none";
       nameInput.value = "";
       imageInput.value = "";
@@ -314,14 +320,14 @@ function renderItems(list, container, card) {
 
   // ITEMS
   list.items.forEach((item, idx) => {
-    const itemEl = createItemElement(item, list, scrollContainer, idx);
+    const itemEl = createItemElement(item, list, newWrapper, idx, card);
     scrollContainer.appendChild(itemEl);
   });
 
-  container.appendChild(scrollContainer);
+  newWrapper.appendChild(scrollContainer);
   updateProgressBar();
 
-  function createItemElement(item, list, container, idx) {
+  function createItemElement(item, list, wrapper, idx, card) {
     const div = document.createElement("div");
     div.className = "item";
     div.dataset.index = idx;
@@ -387,7 +393,7 @@ function renderItems(list, container, card) {
       if (newName && newName.trim() !== "") {
         item.name = truncateText(newName.trim(), MAX_OBJECT_NAME_LENGTH);
         save();
-        renderItems(list, container, card);
+        renderItems(list, wrapper, card);
       }
     };
 
@@ -398,7 +404,7 @@ function renderItems(list, container, card) {
       if (confirm("Eliminare oggetto?")) {
         list.items.splice(list.items.indexOf(item), 1);
         save();
-        renderItems(list, container, card);
+        renderItems(list, wrapper, card);
       }
     };
 
