@@ -14,13 +14,20 @@
 </head>
 <body>
 
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <div class="logo-container">
+    <img src="assets/NOBG.png" alt="MyList Logo" class="loading-logo">
+  </div>
+</div>
+
 <div id="content">
 
 <section id="lists" class="active">
   <div id="listsTitleWrapper">
     <div class="title-with-buttons">
       <button class="icon-btn" id="tagsBtn" title="Gestisci Tag"><i class="fas fa-tags"></i></button>
-      <h1 id="listsTitle"></i> MyList</h1>
+      <h1 id="listsTitle">MyList</h1>
       <button class="icon-btn" id="filterBtn" title="Filtri"><i class="fas fa-filter"></i></button>
     </div>
   </div>
@@ -31,7 +38,7 @@
 <!-- SEZIONE ARCHIVIO -->
 <section id="archive">
   <div id="archiveTitleWrapper">
-    <h1 id="archiveTitle"></i> Archivio</h1>
+    <h1 id="archiveTitle">Archivio</h1>
   </div>
   <div id="noArchiveMessage">Nessuna lista archiviata</div>
   <div id="archiveContainer"></div>
@@ -84,8 +91,24 @@
     </div>
     <div id="tagsList"></div>
     <div class="add-tag-form">
-      <input type="text" id="newTagInput" placeholder="Nuovo tag..." maxlength="20">
+      <input type="text" id="newTagInput" placeholder="Nuovo tag..." maxlength="12">
       <button onclick="addNewTag()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Esporta Liste -->
+<div id="exportModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-export"></i> Esporta Liste</h3>
+      <button class="modal-close" onclick="closeExportModal()">×</button>
+    </div>
+    <p style="color:var(--muted-dark);font-size:0.9rem;margin-bottom:12px;">Seleziona le liste da esportare:</p>
+    <div id="exportListSelection"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="confirmExport()" style="flex:1;">Esporta Selezionate</button>
+      <button onclick="closeExportModal()" style="flex:1;background:var(--danger);">Annulla</button>
     </div>
   </div>
 </div>
