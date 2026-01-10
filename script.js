@@ -1,3 +1,10 @@
+// Loading screen animation
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loadingScreen').classList.add('hidden');
+  }, 2000);
+});
+
 let data = JSON.parse(localStorage.getItem("collections")) || [];
 let allTags = JSON.parse(localStorage.getItem("tags")) || [];
 let currentFilter = localStorage.getItem("currentFilter") || "none";
@@ -6,6 +13,8 @@ let archivedLists = JSON.parse(localStorage.getItem("archivedLists")) || [];
 
 const MAX_OBJECT_NAME_LENGTH = 25;
 const MAX_LIST_NAME_LENGTH = 30;
+const MAX_TAG_NAME_LENGTH = 12;
+const MAX_TAGS = 10;
 
 const TAG_COLORS = [
   { name: 'Rosso', value: 'rgba(255, 59, 48, 0.85)' },
@@ -122,6 +131,7 @@ document.querySelectorAll('.tab-item[data-tab]').forEach(tab => {
     if (tab.dataset.tab === 'lists') {
       document.querySelectorAll('.view-tab').forEach(vt => vt.classList.remove('active'));
       document.querySelector('.view-tab[data-view="lists"]').classList.add('active');
+      updateTitleWeight();
     }
   });
 });
@@ -140,8 +150,23 @@ document.querySelectorAll('.view-tab').forEach(viewTab => {
       document.getElementById('archive').classList.add('active');
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     }
+    updateTitleWeight();
   });
 });
+
+function updateTitleWeight() {
+  const listsTitle = document.getElementById('listsTitle');
+  const archiveTitle = document.getElementById('archiveTitle');
+  const activeView = document.querySelector('.view-tab.active').dataset.view;
+  
+  if (activeView === 'lists') {
+    listsTitle.style.fontWeight = '600';
+    archiveTitle.style.fontWeight = '400';
+  } else {
+    listsTitle.style.fontWeight = '400';
+    archiveTitle.style.fontWeight = '600';
+  }
+}
 
 document.getElementById("addListTab").addEventListener("click", () => {
   const name = prompt("Nome nuova lista (max 30 caratteri):");
@@ -257,6 +282,12 @@ function addNewTag() {
   const input = document.getElementById("newTagInput");
   const tagName = input.value.trim();
   if (!tagName) return;
+  
+  if (allTags.length >= MAX_TAGS) {
+    alert(`Hai raggiunto il limite massimo di ${MAX_TAGS} tag!`);
+    return;
+  }
+  
   if (allTags.some(t => t.name === tagName)) {
     alert("Questo tag esiste già!");
     return;
@@ -398,12 +429,61 @@ function manageListTags(list, listIdx) {
   });
 }
 
+// Export Modal Functions
 document.getElementById("exportBtn").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  if (data.length === 0) {
+    alert("Non ci sono liste da esportare!");
+    return;
+  }
+  document.getElementById("exportModal").classList.add("show");
+  renderExportListSelection();
+});
+
+function closeExportModal() {
+  document.getElementById("exportModal").classList.remove("show");
+}
+
+function renderExportListSelection() {
+  const container = document.getElementById("exportListSelection");
+  container.innerHTML = data.map((list, idx) => {
+    return `
+      <div class="export-list-item" data-index="${idx}" onclick="toggleExportSelection(this)">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${list.name}</span>
+        </div>
+        <i class="fas fa-check"></i>
+      </div>
+    `;
+  }).join('');
+}
+
+window.toggleExportSelection = function(element) {
+  element.classList.toggle('selected');
+};
+
+window.confirmExport = function() {
+  const selectedElements = document.querySelectorAll('.export-list-item.selected');
+  if (selectedElements.length === 0) {
+    alert("Seleziona almeno una lista da esportare!");
+    return;
+  }
+  
+  const selectedLists = Array.from(selectedElements).map(el => {
+    const index = parseInt(el.dataset.index);
+    return data[index];
+  });
+  
+  const blob = new Blob([JSON.stringify(selectedLists, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "Liste-MyList.json";
   a.click();
+  
+  closeExportModal();
+};
+
+document.getElementById("exportModal").addEventListener("click", (e) => {
+  if (e.target.id === "exportModal") closeExportModal();
 });
 
 document.getElementById("importBtn").addEventListener("click", () => {
@@ -418,8 +498,8 @@ document.getElementById("importFile").addEventListener("change", e => {
     try {
       const imported = JSON.parse(ev.target.result);
       if (!Array.isArray(imported)) throw "Formato non valido";
-      if (confirm("Importare le liste? Quelle attuali verranno sovrascritte.")) {
-        data = imported;
+      if (confirm("Importare le liste? Verranno aggiunte a quelle esistenti.")) {
+        data = data.concat(imported);
         save();
         renderLists();
         alert("Liste importate con successo");
@@ -786,10 +866,14 @@ function renderItems(list, container, card) {
   form.append(nameInput, imageInput, buttonGroup);
   scrollContainer.append(addBtn, form);
   addBtn.onclick = () => { form.style.display = "flex"; nameInput.focus(); };
-  closeBtn.onclick = () => form.style.display = "none";
+  closeBtn.onclick = () => { 
+    form.style.display = "none"; 
+    nameInput.value = "";
+    imageInput.value = "";
+  };
   submitBtn.onclick = () => {
-    if (!nameInput.value) return;
-    const obj = { name: truncateText(nameInput.value, MAX_OBJECT_NAME_LENGTH), found: false, img: null };
+    if (!nameInput.value.trim()) return;
+    const obj = { name: truncateText(nameInput.value.trim(), MAX_OBJECT_NAME_LENGTH), found: false, img: null };
     const addItem = () => {
       list.items.push(obj);
       save();
@@ -798,11 +882,20 @@ function renderItems(list, container, card) {
       nameInput.value = "";
       imageInput.value = "";
     };
-    if (imageInput.files[0]) {
+    if (imageInput.files && imageInput.files[0]) {
       const reader = new FileReader();
-      reader.onload = e => { obj.img = e.target.result; addItem(); };
+      reader.onload = e => { 
+        obj.img = e.target.result; 
+        addItem(); 
+      };
+      reader.onerror = () => {
+        alert("Errore nel caricamento dell'immagine");
+        addItem();
+      };
       reader.readAsDataURL(imageInput.files[0]);
-    } else addItem();
+    } else {
+      addItem();
+    }
   };
   list.items.forEach((item, idx) => {
     const itemEl = createItemElement(item, list, newWrapper, idx, card);
@@ -836,6 +929,8 @@ function renderItems(list, container, card) {
     };
     handle.addEventListener("mousedown", () => div.draggable = true);
     handle.addEventListener("mouseup", () => div.draggable = false);
+    handle.addEventListener("touchstart", () => div.draggable = true);
+    handle.addEventListener("touchend", () => div.draggable = false);
     div.addEventListener("dragstart", () => {
       draggingEl = div;
       div.classList.add("dragging");
@@ -888,7 +983,7 @@ let draggingEl = null;
 document.addEventListener("dragover", e => {
   e.preventDefault();
   if (!draggingEl) return;
-  const container = draggingEl.closest('.items-wrapper');
+  const container = draggingEl.closest('.items-scroll-container');
   if (!container) return;
   const items = [...container.querySelectorAll(".item:not(.dragging)")];
   const after = items.find(i => e.clientY < i.getBoundingClientRect().top + i.offsetHeight / 2);
@@ -899,18 +994,21 @@ document.addEventListener("dragover", e => {
 document.addEventListener("drop", e => {
   e.preventDefault();
   if (!draggingEl) return;
-  const container = draggingEl.closest('.items-wrapper');
+  const container = draggingEl.closest('.items-scroll-container');
   if (!container) return;
   const listCard = draggingEl.closest('.list-card');
   const listIdx = [...listsContainer.children].indexOf(listCard);
   const list = data[listIdx];
-  const newIdx = [...container.querySelectorAll(".item")].indexOf(draggingEl);
+  if (!list) return;
+  const allItems = [...container.querySelectorAll(".item")];
+  const newIdx = allItems.indexOf(draggingEl);
   const oldIdx = Number(draggingEl.dataset.index);
-  if (oldIdx !== newIdx && oldIdx > -1) {
+  if (oldIdx !== newIdx && oldIdx > -1 && newIdx > -1) {
     const moved = list.items.splice(oldIdx, 1)[0];
     list.items.splice(newIdx, 0, moved);
     save();
-    renderItems(list, container, draggingEl.closest('.list-card'));
+    const wrapper = container.parentElement;
+    renderItems(list, wrapper, listCard);
   }
   draggingEl = null;
 });
@@ -918,4 +1016,5 @@ document.addEventListener("drop", e => {
 document.addEventListener("DOMContentLoaded", () => {
   renderLists();
   renderArchive();
+  updateTitleWeight();
 });
