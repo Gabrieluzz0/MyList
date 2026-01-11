@@ -1,11 +1,11 @@
 const CACHE_NAME = 'mylist-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/assets/NOBG.png',
-  '/assets/LogoConSfondo.png'
+  '/MyList/',
+  '/MyList/index.html',
+  '/MyList/style.css',
+  '/MyList/script.js',
+  '/MyList/assets/NOBG.png',
+  '/MyList/assets/LogoConSfondo.png'
 ];
 
 // Installazione del service worker
@@ -36,7 +36,6 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Ritorna dalla cache se disponibile, altrimenti dalla rete
         return response || fetch(event.request);
       })
   );
