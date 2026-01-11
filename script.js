@@ -1022,12 +1022,12 @@ document.addEventListener("DOMContentLoaded", () => {
 // Registrazione Service Worker per PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/MyList/service-worker.js')
       .then(registration => {
-        console.log('Service Worker registrato con successo:', registration);
+        console.log('PWA attiva! Service Worker registrato:', registration);
       })
       .catch(error => {
-        console.log('Errore nella registrazione del Service Worker:', error);
+        console.log('Errore Service Worker:', error);
       });
   });
 }
