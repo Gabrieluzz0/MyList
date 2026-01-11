@@ -10,16 +10,17 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/MyList/assets/LogoConSfondo.png",
+      "src": "/MyList/assets/NOBG.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/MyList/assets/LogoConSfondo.png",
+      "src": "/MyList/assets/NOBG.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ]
 }
+
